@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chá Revelação - Raspadinha</title>
+
+    <style>
+      body {
+        font-family: Arial;
+        text-align: center;
+        background: #fffaf0;
+      }
+
+      h1 {
+        margin-top: 20px;
+        color: #b8962e;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 10px;
+        max-width: 600px;
+        margin: 20px auto;
+      }
+
+      .card {
+        background: #d4af37;
+        border-radius: 50%;
+        padding: 15px;
+        cursor: pointer;
+        font-weight: bold;
+        color: white;
+      }
+
+      .card:hover {
+        background: #c9a227;
+      }
+
+      .revealed {
+        background: #fff;
+        color: #b8962e;
+        border: 2px solid #d4af37;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Escolha um número 💛</h1>
+
+    <input
+      type="text"
+      id="nome"
+      placeholder="Digite seu nome"
+      style="padding: 10px; margin: 10px"
+    />
+    <br />
+
+    <div class="grid" id="grid"></div>
+
+    <script>
+      // LISTA DE PRESENTES
+      let presentes = [
+        "Fralda P",
+        "Fralda M",
+        "Fralda G",
+        "Lenço umedecido",
+        "Mamadeira",
+        "Chupeta",
+        "Body",
+        "Meia",
+        "Toalha",
+        "Cobertor",
+        "Pomada",
+        "Shampoo bebê",
+        "Sabonete",
+        "Babador",
+        "Naninha",
+        "Termômetro",
+        "Banheira",
+        "Carrinho",
+        "Cadeirinha",
+        "Bolsa maternidade",
+      ];
+
+      // embaralhar
+      presentes = presentes.sort(() => Math.random() - 0.5);
+
+      // carregar dados salvos
+      let escolhidos = JSON.parse(localStorage.getItem("escolhas")) || {};
+
+      // verificar se o usuário já escolheu
+      function usuarioJaEscolheu(nome) {
+        for (let key in escolhidos) {
+          if (escolhidos[key].nome === nome) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      const grid = document.getElementById("grid");
+
+      for (let i = 1; i <= 100; i++) {
+        let div = document.createElement("div");
+        div.className = "card";
+
+        // se já foi escolhido
+        if (escolhidos[i]) {
+          div.classList.add("revealed");
+          div.innerText =
+            escolhidos[i].presente + "\n(" + escolhidos[i].nome + ")";
+        } else {
+          div.innerText = i;
+        }
+
+        div.onclick = function () {
+          if (div.classList.contains("revealed")) return;
+
+          let nome = document.getElementById("nome").value.trim();
+
+          if (!nome) {
+            alert("Digite seu nome primeiro!");
+            return;
+          }
+
+          // 🚫 BLOQUEIO: já escolheu um número
+          if (usuarioJaEscolheu(nome)) {
+            alert("Você já escolheu um número!");
+            return;
+          }
+
+          let presente = presentes.pop() || "Surpresa 🎁";
+
+          escolhidos[i] = {
+            nome: nome,
+            presente: presente,
+          };
+
+          localStorage.setItem("escolhas", JSON.stringify(escolhidos));
+
+          div.classList.add("revealed");
+          div.innerText = presente + "\n(" + nome + ")";
+        };
+
+        grid.appendChild(div);
+      }
+    </script>
+  </body>
+</html>
