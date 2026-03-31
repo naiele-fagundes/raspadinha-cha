@@ -45,6 +45,7 @@
       }
     </style>
   </head>
+
   <body>
     <h1>Escolha um número 💛</h1>
 
@@ -54,73 +55,75 @@
       placeholder="Digite seu nome"
       style="padding: 10px; margin: 10px"
     />
-    <br />
 
     <div class="grid" id="grid"></div>
 
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <script>
-      // embaralhar
-      presentes = presentes.sort(() => Math.random() - 0.5);
+      const firebaseConfig = {
+        apiKey: "AIzaSyAQMMw7aYlUkxVOvj9vcXiTN_vuxeYNUpo",
+        authDomain: "raspadinha-cha.firebaseapp.com",
+        projectId: "raspadinha-cha",
+      };
 
-      // carregar dados salvos
-      let escolhidos = JSON.parse(localStorage.getItem("escolhas")) || {};
-
-      // verificar se o usuário já escolheu
-      function usuarioJaEscolheu(nome) {
-        for (let key in escolhidos) {
-          if (escolhidos[key].nome === nome) {
-            return true;
-          }
-        }
-        return false;
-      }
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
 
       const grid = document.getElementById("grid");
 
-      for (let i = 1; i <= 60; i++) {
-        let div = document.createElement("div");
-        div.className = "card";
+      async function carregar() {
+        const snapshot = await db.collection("raspadinha").get();
 
-        // se já foi escolhido
-        if (escolhidos[i]) {
-          div.classList.add("revealed");
-          div.innerText =
-            escolhidos[i].presente + "\n(" + escolhidos[i].nome + ")";
-        } else {
-          div.innerText = i;
-        }
+        let lista = [];
 
-        div.onclick = function () {
-          if (div.classList.contains("revealed")) return;
+        snapshot.forEach((doc) => {
+          lista.push({
+            id: doc.id,
+            ...doc.data(),
+          });
+        });
 
-          let nome = document.getElementById("nome").value.trim();
+        // 🔥 ordenar certinho 1 → 60
+        lista.sort((a, b) => Number(a.id) - Number(b.id));
 
-          if (!nome) {
-            alert("Digite seu nome primeiro!");
-            return;
+        lista.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "card";
+
+          if (!item.disponivel) {
+            div.classList.add("revealed");
+            div.innerText = item.presente + "\n(" + item.nome + ")";
+          } else {
+            div.innerText = item.id;
           }
 
-          // 🚫 BLOQUEIO: já escolheu um número
-          if (usuarioJaEscolheu(nome)) {
-            alert("Você já escolheu um número!");
-            return;
-          }
+          div.onclick = async function () {
+            if (!item.disponivel) return;
 
-          let presente = presentes.pop() || "Surpresa 🎁";
+            let nome = document.getElementById("nome").value.trim();
 
-          escolhidos[i] = {
-            nome: nome,
-            presente: presente,
+            if (!nome) {
+              alert("Digite seu nome!");
+              return;
+            }
+
+            await db.collection("raspadinha").doc(item.id).update({
+              disponivel: false,
+              nome: nome,
+            });
+
+            div.classList.add("revealed");
+            div.innerText = item.presente + "\n(" + nome + ")";
           };
 
-          localStorage.setItem("escolhas", JSON.stringify(escolhidos));
-
-          div.classList.add("revealed");
-          div.innerText = presente + "\n(" + nome + ")";
-        };
-
-        grid.appendChild(div);
+          grid.appendChild(div);
+        });
       }
+
+      carregar();
     </script>
   </body>
 </html>
