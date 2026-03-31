@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
@@ -59,30 +59,6 @@
     <div class="grid" id="grid"></div>
 
     <script>
-      // LISTA DE PRESENTES
-      let presentes = [
-        "Fralda P",
-        "Fralda M",
-        "Fralda G",
-        "Lenço umedecido",
-        "Mamadeira",
-        "Chupeta",
-        "Body",
-        "Meia",
-        "Toalha",
-        "Cobertor",
-        "Pomada",
-        "Shampoo bebê",
-        "Sabonete",
-        "Babador",
-        "Naninha",
-        "Termômetro",
-        "Banheira",
-        "Carrinho",
-        "Cadeirinha",
-        "Bolsa maternidade",
-      ];
-
       // embaralhar
       presentes = presentes.sort(() => Math.random() - 0.5);
 
@@ -101,7 +77,7 @@
 
       const grid = document.getElementById("grid");
 
-      for (let i = 1; i <= 100; i++) {
+      for (let i = 1; i <= 60; i++) {
         let div = document.createElement("div");
         div.className = "card";
 
