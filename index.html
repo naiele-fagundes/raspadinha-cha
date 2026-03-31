@@ -37,10 +37,10 @@
         background: #c9a227;
       }
 
-        .revealed {
-          background: #fff;
-          color: #d4af37;
-          border: 2px solid #d4af37;
+      .revealed {
+        background: #fff;
+        color: #d4af37;
+        border: 2px solid #d4af37;
       }
     </style>
   </head>
@@ -105,10 +105,22 @@
             let nome = document.getElementById("nome").value.trim();
 
             if (!nome) {
-              alert("Digite seu nome!");
+              alert("Digite seu nome primeiro!");
               return;
             }
 
+            // 🔒 Verificar no Firebase se já escolheu
+            const query = await db
+              .collection("raspadinha")
+              .where("nome", "==", nome)
+              .get();
+
+            if (!query.empty) {
+              alert("Você já escolheu um número!");
+              return;
+            }
+
+            // 🔒 Atualizar no Firebase
             await db.collection("raspadinha").doc(item.id).update({
               disponivel: false,
               nome: nome,
@@ -116,8 +128,9 @@
 
             div.classList.add("revealed");
             div.innerText = item.presente + "\n(" + nome + ")";
-          };
 
+            item.disponivel = false;
+          };
           grid.appendChild(div);
         });
       }
