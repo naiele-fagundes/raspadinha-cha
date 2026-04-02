@@ -54,6 +54,22 @@
       placeholder="Digite seu nome"
       style="padding: 10px; margin: 10px"
     />
+    <div style="margin: 15px">
+      <label><b>Qual o seu palpite?</b></label
+      ><br /><br />
+
+      <label style="margin-right: 15px">
+        <input type="radio" name="palpite" value="Meninos" /> Meninos
+      </label>
+
+      <label style="margin-right: 15px">
+        <input type="radio" name="palpite" value="Meninas" /> Meninas
+      </label>
+
+      <label>
+        <input type="radio" name="palpite" value="Casal" /> Um casal
+      </label>
+    </div>
 
     <div class="grid" id="grid"></div>
 
@@ -101,7 +117,6 @@
 
           div.onclick = async function () {
             if (!item.disponivel) return;
-
             let nome = document.getElementById("nome").value.trim();
 
             if (!nome) {
@@ -109,6 +124,17 @@
               return;
             }
 
+            // pegar palpite
+            let palpiteSelecionado = document.querySelector(
+              'input[name="palpite"]:checked',
+            );
+
+            if (!palpiteSelecionado) {
+              alert("Escolha seu palpite!");
+              return;
+            }
+
+            let palpite = palpiteSelecionado.value;
             // 🔒 Verificar no Firebase se já escolheu
             const query = await db
               .collection("raspadinha")
@@ -124,11 +150,12 @@
             await db.collection("raspadinha").doc(item.id).update({
               disponivel: false,
               nome: nome,
+              palpite: palpite,
             });
 
             div.classList.add("revealed");
-            div.innerText = item.presente + "\n(" + nome + ")";
-
+            div.innerText =
+              item.presente + "\n(" + nome + " - " + palpite + ")";
             item.disponivel = false;
           };
           grid.appendChild(div);
