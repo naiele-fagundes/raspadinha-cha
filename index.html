@@ -2,6 +2,7 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chá Revelação - Raspadinha</title>
 
     <style>
@@ -9,6 +10,8 @@
         font-family: Arial;
         text-align: center;
         background: #fffaf0;
+        padding: 10px;
+        margin: 0; /*adição gemini*/
       }
 
       h1 {
@@ -18,29 +21,158 @@
 
       .grid {
         display: grid;
-        grid-template-columns: repeat(10, 1fr);
-        gap: 10px;
-        max-width: 600px;
+        grid-template-columns: repeat(10, 1fr); /*max-content ficou melhor*/
+        gap: 12px;
+        justify-content: center;
+        max-width: 900px;
         margin: 20px auto;
+        padding: 10px; /*adção gemini*/
       }
 
       .card {
         background: #d4af37;
         border-radius: 50%;
-        padding: 15px;
+        width: clamp(60px, 8vw, 85px);
+        height: clamp(60px, 8vw, 85px);
+        height: 85px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
         font-weight: bold;
         color: white;
+        font-size: 18px;
+        transition: transform 0.2s;
+        box-sizing: border-box;
+        padding: 5px;
+      }
+
+      .card.escolhido {
+        background: #eee;
+        color: #c9a32b;
+        border: 2px solid #c9a32b;
       }
 
       .card:hover {
         background: #c9a227;
+        transform: scale(1.1);
+      }
+      .card.revealed {
+        background: #fff;
+        color: #d4af37;
+        border: 2px solid #d4af37;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(7px, 2vw, 11px);
+        /* Tamanho da fonte dinâmico para frases longas */
+        line-height: 1.1;
+
+        /* Padding evita que o texto encoste na borda do círculo */
+        padding: 4px;
+        box-sizing: border-box;
+        text-align: center;
+
+        /* Garante que o texto quebre linhas */
+        overflow: hidden;
+      }
+      .card.revealed span {
+        display: block;
+        width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        font-size: inherit;
+        font-size: clamp(7px, 2vw, 10px);
+        line-height: 1;
       }
 
+      .card.revealed strong {
+        font-size: clamp(6px, 1.8vw, 9px);
+        color: #555;
+        line-height: 1;
+      } /*deixa em negrito depois de revelado*/
+
+      .card strong {
+        font-size: clamp(10px, 2.5vw, 14px);
+        line-height: 1.2;
+        word-break: break-word;
+      }
       .revealed {
         background: #fff;
         color: #d4af37;
         border: 2px solid #d4af37;
+      }
+      @media (max-width: 650px) {
+        .grid {
+          grid-template-columns: repeat(5, 1fr); /* tava com max content */
+          gap: 10px;
+        }
+
+        .card {
+          font-size: 16px;
+          overflow: hidden;
+        }
+        .card.revealed {
+          font-size: clamp(7px, 2.2vw, 11px);
+          line-height: 1.1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+
+          text-align: center;
+
+          /* 👇 ISSO AQUI RESOLVE MUITO */
+          overflow: hidden;
+        }
+        .card strong {
+          font-size: 10px;
+        }
+        .card.revealed span,
+        .card.revealed strong {
+          display: block;
+          width: 100%;
+          text-align: center;
+
+          word-break: break-word;
+          overflow-wrap: break-word;
+
+          white-space: normal;
+        }
+
+        input#nome {
+          width: 80%;
+        }
+      }
+      @media (max-width: 400px) {
+        .grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .card {
+          overflow: hidden;
+        }
+        .card strong {
+          display: block;
+          width: 100%;
+          text-align: center;
+
+          word-break: break-word;
+          overflow-wrap: break-word;
+
+          white-space: normal;
+        }
+
+        .card.revealed strong {
+          display: block;
+          width: 100%;
+          text-align: center;
+
+          word-break: break-word;
+          overflow-wrap: break-word;
+
+          white-space: normal;
+        }
       }
     </style>
   </head>
@@ -110,7 +242,12 @@
 
           if (!item.disponivel) {
             div.classList.add("revealed");
-            div.innerText = item.presente + "\n(" + item.nome + ")";
+            div.innerHTML = `
+    <span>${item.presente || "Presente"}</span>
+    <strong style="font-size: 8px;">
+      (${item.nome || "Sem nome"} - ${item.palpite || ""})
+    </strong>
+  `;
           } else {
             div.innerText = item.id;
           }
@@ -153,10 +290,18 @@
               palpite: palpite,
             });
 
-            div.classList.add("revealed");
-            div.innerText =
-              item.presente + "\n(" + nome + " - " + palpite + ")";
             item.disponivel = false;
+            item.nome = nome;
+            item.palpite = palpite; /*adição do GPT*/
+            div.onclick = null;
+
+            div.classList.add("revealed");
+            div.innerHTML = `
+        <span>${item.presente || "Presente"}</span>
+        <strong style="font-size: 8px;">
+          (${nome} - ${palpite})
+        </strong>
+      `;
           };
           grid.appendChild(div);
         });
